@@ -1,0 +1,29 @@
+# Maven target directory
+/target/
+
+# Logs
+*.log
+
+# IDE files
+/.idea/
+/*.iml
+/.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+*.env
+
+# Java build files
+*.class
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Application properties (if you store secrets locally)
+application-local.yml
+application-local.properties
