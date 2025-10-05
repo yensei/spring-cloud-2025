@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: mcs-customers # <-- ¡Nombre lógico del microservicio!
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}  # Valor por defecto: dev   
+  config:
+    import: optional:configserver:http://config-server:8888 
+  cloud:
+      # CRUCIAL: Apuntar al Config Server usando su nombre de servicio en la red de Docker/Kubernetes
+    config:
+      fail-fast: true # Detiene el inicio si no puede conectarse al Config Server (recomendado).
+      retry:                         # Configuración de reintentos para la conexión al Config Server
+        max-attempts: 20
+        max-interval: 5000
+        initial-interval: 1000
+server:
+  port: 8080 # Le dice a Spring Boot que use un puerto dinámico (ideal para Kubernetes/Docker)
+  servlet:
+    context-path: /mcs-customers # 💥 Agrega el contexto esperado

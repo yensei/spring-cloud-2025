@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  # 1. SERVICIO DE CONFIGURACIÓN 
+  config-server:
+    image: spring-config-server:latest # Tu imagen ya construida
+    container_name: config-server
+    ports:
+      - "8888:8888"    
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # 2. BASE DE DATOS POSTGRESQL 
+  db-postgres:
+    image: postgres:15-alpine
+    container_name: db-postgres
+    environment:
+      POSTGRES_DB: customerdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mantiene los datos persistentes incluso si el contenedor se reinicia
+      - postgres_data:/var/lib/postgresql/data
+
+  # 3. MICROSERVICIO DE CLIENTES (Config Client)
+  customer-service:
+    build: 
+      context: ./mcs-customers # Asume que el Microservicio está en una subcarpeta
+      dockerfile: Dockerfile
+    container_name: mcs-customers
+    ports:
+      - "8080:8080" # Mapeamos un puerto fijo para el acceso externo (API Gateway)
+    volumes:
+      # Monta la carpeta 'target' del proyecto local dentro del contenedor
+      - ./mcs-customers/target:/home/spring/app/target
+      # Monta la carpeta 'src' para que Devtools pueda verla (opcional, pero útil)
+      - ./mcs-customers/src:/home/spring/app/src
+    environment:
+      # Habilita el debug y el remote shutdown (necesario para Devtools)
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true 
+      # Spring Cloud URI ya definido en bootstrap.yml, pero es bueno como fallback
+      - WAIT_HOSTS=db-postgres:5432,spring-config-server:8888 # Espera a que la BD y el CS estén listos (necesitarás una utilidad 'wait-for-it' o similar, o simplemente confiar en Docker Compose)
+    depends_on:
+      config-server:
+        condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
+
+volumes:
+  postgres_data:

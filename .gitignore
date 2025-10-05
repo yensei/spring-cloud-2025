@@ -1,5 +1,10 @@
+# variables de entorno, secrets, y configuraciones locales
+.env
+mvn-settings.xml
+
 # Maven target directory
-/target/
+**/target
+*.class
 
 # Logs
 *.log
