@@ -5,6 +5,7 @@ mvn-settings.xml
 # Maven target directory
 **/target
 *.class
+*.jar
 
 # Logs
 *.log
