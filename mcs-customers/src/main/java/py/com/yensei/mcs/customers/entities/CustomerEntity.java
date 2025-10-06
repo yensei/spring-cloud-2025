@@ -1,15 +1,20 @@
-package py.com.yensei.mcs.clients.entities;
+package py.com.yensei.mcs.customers.entities;
 
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "customer")
 @lombok.Data
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
-public class Customer {
+public class CustomerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,5 +24,6 @@ public class Customer {
     private String email;
     private String phoneNumber;
     private String address;
-    private String birthdate;
+    @Column(name = "birthdate")
+    private LocalDate birthdate;
 }

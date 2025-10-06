@@ -1,4 +1,4 @@
-package py.com.yensei.mcs.clients;
+package py.com.yensei.mcs.customers;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

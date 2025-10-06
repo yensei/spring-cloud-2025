@@ -13,7 +13,16 @@ spring:
         max-attempts: 20
         max-interval: 5000
         initial-interval: 1000
+  jpa:
+    hibernate:
+      ddl-auto: update  # create | update | validate | none
+    show-sql: true
 server:
   port: 8080 # Le dice a Spring Boot que use un puerto dinámico (ideal para Kubernetes/Docker)
   servlet:
     context-path: /mcs-customers # 💥 Agrega el contexto esperado
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html # Ruta para la UI (puedes cambiarla si quieres)
+  packages-to-scan: py.com.yensei.mcs.customers.controllers # Escanea solo los controladores para generar la doc
