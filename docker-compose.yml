@@ -29,24 +29,29 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   # 3. MICROSERVICIO DE CLIENTES (Config Client)
-  customer-service:
+  mcs-customer:
     build: 
       context: ./mcs-customers # Asume que el Microservicio está en una subcarpeta
       dockerfile: Dockerfile
     container_name: mcs-customers
     ports:
       - "8080:8080" # Mapeamos un puerto fijo para el acceso externo (API Gateway)
+      - "5005:5005" # Para debugging
     volumes:
-      # Monta la carpeta 'target' del proyecto local dentro del contenedor
-      - ./mcs-customers/target:/home/spring/app/target
-      # Monta la carpeta 'src' para que Devtools pueda verla (opcional, pero útil)
-      - ./mcs-customers/src:/home/spring/app/src
+      # 🚀 NUEVO: Mapeo de la carpeta .m2-local a la carpeta .m2 del usuario root
+      #- ./mcs-customers/mvn-settings.xml:/root/.m2/settings.xml:ro  # Usar :ro (read-only) es una buena práctica
+      # ¡ESTA ES LA MAGIA DEL HOT RELOAD!
+      # Sincroniza las clases compiladas de tu PC con el classpath dentro del contenedor.
+      - ./mcs-customers/target/classes:/app/BOOT-INF/classes
     environment:
       # Habilita el debug y el remote shutdown (necesario para Devtools)
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DEVTOOLS_RESTART_ENABLED=true 
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DEVTOOLS_RESTART_ENABLED: true 
       # Spring Cloud URI ya definido en bootstrap.yml, pero es bueno como fallback
-      - WAIT_HOSTS=db-postgres:5432,spring-config-server:8888 # Espera a que la BD y el CS estén listos (necesitarás una utilidad 'wait-for-it' o similar, o simplemente confiar en Docker Compose)
+      WAIT_HOSTS: db-postgres:5432,spring-config-server:8888 # Espera a que la BD y el CS estén listos (necesitarás una utilidad 'wait-for-it' o similar, o simplemente confiar en Docker Compose)      
+      # Configuración de debug remoto para Java
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      
     depends_on:
       config-server:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar

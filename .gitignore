@@ -20,6 +20,7 @@ Thumbs.db
 .env
 *.env
 mvn-settings.xml
+.devcontainer
 
 # Java build files
 *.class

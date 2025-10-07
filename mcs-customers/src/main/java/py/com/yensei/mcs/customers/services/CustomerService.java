@@ -15,11 +15,11 @@ public class CustomerService {
 
     @Autowired
     CustomerMapper mapper;
-
-    public CustomerModel postCustomer(CustomerModel customer) {
+    //aqui un comentario
+    public CustomerModel createCustomer(CustomerModel customer) {
         var customerEntity = mapper.toEntity(customer);
         var savedEntity = repository.save(customerEntity);
-        return mapper.toModel(savedEntity);
+        return mapper.toModel(savedEntity); 
     }
 
 }
