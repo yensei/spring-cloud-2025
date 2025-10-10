@@ -33,4 +33,34 @@ public class CustomerService {
         return customerPage.map(mapper::toModel);
     }
 
+    public CustomerModel getCustomerById(Long id) {
+        // Busca la entidad por ID. Si no la encuentra, lanza una excepción.
+        // En un futuro, se puede crear una excepción personalizada (ej. ResourceNotFoundException).
+        var customerEntity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        return mapper.toModel(customerEntity);
+    }
+
+    public CustomerModel updateCustomer(Long id, CustomerModel customer) {
+        // 1. Verificar si el cliente existe
+        var existingEntity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+
+        // 2. Mapear los datos del modelo de entrada a la entidad existente
+        mapper.updateEntityFromModel(customer, existingEntity);
+
+        // 3. Guardar la entidad actualizada
+        var updatedEntity = repository.save(existingEntity);
+
+        // 4. Devolver el modelo actualizado
+        return mapper.toModel(updatedEntity);
+    }
+
+    public void deleteCustomer(Long id) {
+        // Verificar si el cliente existe antes de intentar borrarlo
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Customer not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
 }

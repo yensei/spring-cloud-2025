@@ -9,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,6 +70,58 @@ public class CustomerControllerDecorator implements ICustomerController {
             @PageableDefault(page = 0, size = 10) Pageable pageable) {
         logger.debug(">>> Decorator: Interceptando petición para obtener clientes con filtro: firstname={}, lastname={}, pageable={}", firstname, lastname, pageable);
         return this.customerController.getCustomers(firstname, lastname, pageable);
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a customer by ID", description = "Retrieves a single customer record by its unique ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer found",
+                         content = { @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CustomerModel.class)) }),
+            @ApiResponse(responseCode = "404", description = "Customer not found",
+                         content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                         content = @Content)
+    })
+    public ResponseEntity<CustomerModel> getCustomerById(@PathVariable Long id) {
+        logger.debug(">>> Decorator: Interceptando petición para obtener cliente por ID: {}", id);
+        return this.customerController.getCustomerById(id);
+    }
+
+    @Override
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing customer", description = "Updates a customer's details by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer updated successfully",
+                         content = { @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CustomerModel.class)) }),
+            @ApiResponse(responseCode = "404", description = "Customer not found",
+                         content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                         content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                         content = @Content)
+    })
+    public ResponseEntity<CustomerModel> updateCustomer(@PathVariable Long id, @RequestBody CustomerModel customerModel) {
+        logger.debug(">>> Decorator: Interceptando petición para actualizar cliente por ID: {}", id);
+        return this.customerController.updateCustomer(id, customerModel);
+    }
+
+    @Override
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a customer", description = "Deletes a customer record by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Customer deleted successfully",
+                         content = @Content),
+            @ApiResponse(responseCode = "404", description = "Customer not found",
+                         content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                         content = @Content)
+    })
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        logger.debug(">>> Decorator: Interceptando petición para eliminar cliente por ID: {}", id);
+        return this.customerController.deleteCustomer(id);
     }
 
 }

@@ -30,4 +30,20 @@ public class CustomerControllerImpl implements ICustomerController {
     public ResponseEntity<Page<CustomerModel>> getCustomers(String firstname, String lastname, Pageable pageable) {
         return new ResponseEntity<>(customerService.getCustomers(firstname, lastname, pageable), HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<CustomerModel> getCustomerById(Long id) {
+        return new ResponseEntity<>(customerService.getCustomerById(id), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<CustomerModel> updateCustomer(Long id, CustomerModel customerModel) {
+        return new ResponseEntity<>(customerService.updateCustomer(id, customerModel), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteCustomer(Long id) {
+        customerService.deleteCustomer(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

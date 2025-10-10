@@ -10,5 +10,8 @@ public interface ICustomerController {
     
     ResponseEntity<CustomerModel> createCustomer(CustomerModel customerModel);
     ResponseEntity<Page<CustomerModel>> getCustomers(String firstname, String lastname, Pageable pageable);
+    ResponseEntity<CustomerModel> getCustomerById(Long id);
+    ResponseEntity<CustomerModel> updateCustomer(Long id, CustomerModel customerModel);
+    ResponseEntity<Void> deleteCustomer(Long id);
 
 }

@@ -9,7 +9,7 @@ COPY .mvn .mvn
 COPY pom.xml .
 
 # ¡CRÍTICO! Copia el settings.xml para autenticación con el repositorio privado de Maven
-COPY mvn-settings.xml /root/.m2/settings.xml
+COPY ./mvn-settings.xml /root/.m2/settings.xml
 
 # Descargar las dependencias. Si el pom.xml no cambia, esta etapa se cachea.
 RUN ./mvnw dependency:go-offline -B
