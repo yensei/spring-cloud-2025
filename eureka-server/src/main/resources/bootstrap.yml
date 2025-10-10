@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: eureka-server
+  cloud:
+    config:
+      import: optional:configserver:http://localhost:8888 # Esta propiedad DEBE estar en bootstrap.yml
+      fail-fast: true # Si el Config Server está disponible pero no encuentra la configuración, falla rápido.
+
+
