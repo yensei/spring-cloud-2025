@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   # 1. SERVICIO DE CONFIGURACIÓN 
   config-server:
@@ -13,6 +12,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - spring-cloud-network
 
   # 2. BASE DE DATOS POSTGRESQL 
   db-postgres:
@@ -27,6 +28,26 @@ services:
     volumes:
       # Mantiene los datos persistentes incluso si el contenedor se reinicia
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - spring-cloud-network
+
+  eureka-server:
+    #image: eureka-server:latest # Crea la imagen de tu proyecto Eureka Server
+    build: 
+      context: ./eureka-server # Asume que el Microservicio está en una subcarpeta
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      # Opcional, para el Config Server, si es que Eureka también lo usa
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+    # Es crucial que el Config Server y el Discovery Server inicien antes que los clientes
+    depends_on:
+      config-server:
+        condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
+    networks:
+      - spring-cloud-network
 
   # 3. MICROSERVICIO DE CLIENTES (Config Client)
   mcs-customer:
@@ -55,6 +76,15 @@ services:
     depends_on:
       config-server:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
+      eureka-server:
+        condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
+    networks:
+      - spring-cloud-network
 
 volumes:
   postgres_data:
+
+# Definimos la red personalizada que usarán todos los servicios
+networks:
+  spring-cloud-network:
+    driver: bridge
