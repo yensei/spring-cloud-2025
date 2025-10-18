@@ -5,7 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import py.com.yensei.mcs.orders.clients.CustomerClient;
+import py.com.yensei.mcs.orders.models.CustomerModel;
 import py.com.yensei.mcs.orders.entities.OrderEntity;
+import py.com.yensei.mcs.orders.exceptions.ResourceNotFoundException;
 import py.com.yensei.mcs.orders.mappers.OrderMapper;
 import py.com.yensei.mcs.orders.models.OrderModel;
 import py.com.yensei.mcs.orders.repository.OrderRepository;
@@ -16,6 +19,7 @@ public class OrderService {
 
     private final OrderRepository repository;
     private final OrderMapper mapper;
+    private final CustomerClient customerClient;
     //aqui un comentario
     public OrderModel createOrder(OrderModel order) {
         var orderEntity = mapper.toEntity(order);
@@ -34,17 +38,21 @@ public class OrderService {
     }
 
     public OrderModel getOrderById(Long id) {
-        // Busca la entidad por ID. Si no la encuentra, lanza una excepción.
-        // En un futuro, se puede crear una excepción personalizada (ej. ResourceNotFoundException).
         var orderEntity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        return mapper.toModel(orderEntity);
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+        
+        // Convertimos la entidad a modelo
+        OrderModel orderModel = mapper.toModel(orderEntity);
+        // Usamos el Feign Client para obtener los datos del cliente
+        CustomerModel customerModel = customerClient.getCustomerById(orderEntity.getCustomerId());
+        orderModel.setCustomerData(customerModel);
+        return orderModel;
     }
 
     public OrderModel updateOrder(Long id, OrderModel order) {
-        // 1. Verificar si el cliente existe
+        // 1. Verificar si la orden existe
         var existingEntity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
         // 2. Mapear los datos del modelo de entrada a la entidad existente
         mapper.updateEntityFromModel(order, existingEntity);
@@ -57,9 +65,9 @@ public class OrderService {
     }
 
     public void deleteOrder(Long id) {
-        // Verificar si el cliente existe antes de intentar borrarlo
+        // Verificar si la orden existe antes de intentar borrarla
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Order not found with id: " + id);
+            throw new ResourceNotFoundException("Order not found with id: " + id);
         }
         repository.deleteById(id);
     }

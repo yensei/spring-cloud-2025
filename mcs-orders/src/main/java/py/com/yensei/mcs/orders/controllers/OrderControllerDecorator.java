@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import py.com.yensei.mcs.orders.models.OrderModel;
 
 @RestController
-@RequestMapping("/mcs-orders")
+@RequestMapping("/orders")
 @Qualifier("orderControllerDecorator")
 @Tag(name = "Order Management", description = "API for creating, retrieving, and managing mcs-orders.")
 public class OrderControllerDecorator implements OrderController {
