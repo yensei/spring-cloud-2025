@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: mcs-orders # <-- ¡Nombre lógico del microservicio!
+  config:
+    # Configuración de importación. Spring usará el perfil activo para completar la URL.
+    import: "optional:configserver:http://config-server:8888"
+  cloud:
+      # CRUCIAL: Apuntar al Config Server usando su nombre de servicio en la red de Docker/Kubernetes
+    config:
+      fail-fast: true # Detiene el inicio si no puede conectarse al Config Server (recomendado).
+      retry:                         # Configuración de reintentos para la conexión al Config Server
+        max-attempts: 20
+        max-interval: 5000
+        initial-interval: 1000
+server:
+  port: 8081 # Corregido para coincidir con docker-compose.yml
+  servlet:
+    context-path: /mcs-orders # 💥 Agrega el contexto esperado
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html # Ruta para la UI (puedes cambiarla si quieres)
+  packages-to-scan: py.com.yensei.mcs.orders.controllers # Escanea solo los controladores para generar la doc
+
+---
+# Configuración específica para el perfil 'dev'
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create  # create | update | validate | none
+    show-sql: true
+
+# Configuración personalizada de log
+logging:
+  level:
+    # Usa el paquete base para establecer el nivel de log
+    'py.com.yensei.mcs.orders': DEBUG
