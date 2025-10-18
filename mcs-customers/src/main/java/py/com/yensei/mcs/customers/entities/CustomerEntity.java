@@ -10,7 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "t_customer")
 @lombok.Data
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
