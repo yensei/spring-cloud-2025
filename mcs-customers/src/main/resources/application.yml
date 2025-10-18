@@ -1,10 +1,9 @@
 spring:
   application:
     name: mcs-customers # <-- ¡Nombre lógico del microservicio!
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}  # Valor por defecto: dev   
   config:
-    import: optional:configserver:http://config-server:8888 
+    # Configuración de importación. Spring usará el perfil activo para completar la URL.
+    import: "optional:configserver:http://config-server:8888"
   cloud:
       # CRUCIAL: Apuntar al Config Server usando su nombre de servicio en la red de Docker/Kubernetes
     config:
@@ -13,10 +12,7 @@ spring:
         max-attempts: 20
         max-interval: 5000
         initial-interval: 1000
-  jpa:
-    hibernate:
-      ddl-auto: update  # create | update | validate | none
-    show-sql: true
+
 server:
   port: 8080 # Le dice a Spring Boot que use un puerto dinámico (ideal para Kubernetes/Docker)
   servlet:
@@ -26,3 +22,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html # Ruta para la UI (puedes cambiarla si quieres)
   packages-to-scan: py.com.yensei.mcs.customers.controllers # Escanea solo los controladores para generar la doc
+---
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create  # create | update | validate | none
+    show-sql: true
