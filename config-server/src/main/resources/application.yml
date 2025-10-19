@@ -11,4 +11,4 @@ spring:
           username: ${GIT_USERNAME}
           password: ${GIT_PASSWORD}
           # Si es local, usa: uri: file:///C:/ruta/a/config-repo
-management.endpoint.web.exposure.include: health, info, refresh
+management.endpoint.web.exposure.include: health,info,refresh,prometheus

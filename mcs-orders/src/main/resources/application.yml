@@ -35,7 +35,11 @@ resilience4j.circuitbreaker:
       failureRateThreshold: 50 # Abre el circuito si el 50% de las llamadas fallan
       waitDurationInOpenState: 10000 # Espera 10s antes de pasar a half-open
       slidingWindowSize: 10 # Analiza las últimas 10 llamadas
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus # Exponer el endpoint de Prometheus
 ---
 # Configuración específica para el perfil 'dev'
 spring:

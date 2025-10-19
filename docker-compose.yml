@@ -1,7 +1,9 @@
 services:
   # 1. SERVICIO DE CONFIGURACIÓN 
   config-server:
-    image: spring-config-server:latest # Tu imagen ya construida
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
     container_name: config-server
     ports:
       - "8888:8888"    
@@ -14,6 +16,11 @@ services:
       retries: 5
     networks:
       - spring-cloud-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 2. BASE DE DATOS POSTGRESQL 
   db-postgres:
@@ -45,18 +52,23 @@ services:
     container_name: eureka-server
     ports:
       - "8761:8761"
+    # Es crucial que el Config Server y el Discovery Server inicien antes que los clientes
     environment:
       # Opcional, para el Config Server, si es que Eureka también lo usa
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
-    # Es crucial que el Config Server y el Discovery Server inicien antes que los clientes
     depends_on:
       config-server:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
     networks:
       - spring-cloud-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 3. MICROSERVICIO DE CLIENTES (Config Client)
-  mcs-customer:
+  mcs-customers:
     build: 
       context: ./mcs-customers # Asume que el Microservicio está en una subcarpeta
       dockerfile: Dockerfile
@@ -88,6 +100,12 @@ services:
         condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
     networks:
       - spring-cloud-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   mcs-orders:
     build: 
       context: ./mcs-orders # Asume que el Microservicio está en una subcarpeta
@@ -115,7 +133,12 @@ services:
       eureka-server:
         condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
     networks:
-      - spring-cloud-network  
+      - spring-cloud-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   
   # 4. API GATEWAY
   gateway-server:
@@ -133,7 +156,64 @@ services:
       eureka-server:
         condition: service_started
     networks:
-      - spring-cloud-network  
+      - spring-cloud-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 5. STACK DE MONITOREO
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      config-server:
+        condition: service_healthy
+    networks:
+      - spring-cloud-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      # Puedes agregar dashboards pre-configurados en esta carpeta
+      # - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - spring-cloud-network
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml
+    networks:
+      - spring-cloud-network
+
+  # promtail:
+  #   image: grafana/promtail:latest
+  #   container_name: promtail
+  #   volumes:
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml
+  #   networks:
+  #     - spring-cloud-network
 
 volumes:
   postgres_data:

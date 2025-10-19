@@ -40,3 +40,11 @@ SELECT * FROM t_order;
 exit
 
 ```
+
+## Monitoreo
+### Prometheus
+Prometheus es el corazón del monitoreo de métricas. Su trabajo es "raspar" (hacer scrape) periódicamente los endpoints /actuator/prometheus que tus microservicios ahora exponen
+http://localhost:9090
+
+http://localhost:9090/targets 
+

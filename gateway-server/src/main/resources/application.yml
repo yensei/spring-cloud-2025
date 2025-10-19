@@ -6,6 +6,12 @@ spring:
     name: gateway-server
   config:
     import: "optional:configserver:http://config-server:8888"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus # Exponer el endpoint de Prometheus
   cloud:
     gateway:
       discovery:

@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s # Frecuencia con la que se recolectan métricas.
+
+scrape_configs:
+  - job_name: 'spring-micrometer'
+    metrics_path: '/actuator/prometheus' # Endpoint que exponen los servicios Spring Boot
+    static_configs:
+      - targets:
+          - 'mcs-customers:8080'
+          - 'mcs-orders:8081'
+          - 'gateway-server:8090'
+          - 'eureka-server:8761'
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
