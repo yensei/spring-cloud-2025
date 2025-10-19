@@ -22,6 +22,12 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html # Ruta para la UI (puedes cambiarla si quieres)
   packages-to-scan: py.com.yensei.mcs.customers.controllers # Escanea solo los controladores para generar la doc
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus # Exponer el endpoint de Prometheus
 ---
 spring:
   jpa:

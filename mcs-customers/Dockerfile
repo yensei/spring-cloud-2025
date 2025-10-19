@@ -20,9 +20,6 @@ COPY src src
 # Compilar el proyecto y generar el JAR ejecutable
 RUN ./mvnw package -DskipTests
 
-# Localizar el nombre exacto del JAR (config-server-1.0.0-SNAPSHOT.jar)
-#ARG JAR_FILE=target/customers-0.0.1-SNAPSHOT.jar
-ARG JAR_FILE=target/*.jar
 # --- Etapa 2: Ejecución (Runtime) ---
 # Usa una imagen ligera solo con JRE para ejecutar la aplicación
 FROM eclipse-temurin:17-jre-jammy
