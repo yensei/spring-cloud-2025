@@ -116,6 +116,24 @@ services:
         condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
     networks:
       - spring-cloud-network  
+  
+  # 4. API GATEWAY
+  gateway-server:
+    build:
+      context: ./gateway-server
+      dockerfile: Dockerfile
+    container_name: gateway-server
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network  
 
 volumes:
   postgres_data:
