@@ -1,11 +1,15 @@
 package py.com.yensei.mcs.customers.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import py.com.yensei.mcs.customers.entities.CustomerEntity;
+import py.com.yensei.mcs.customers.events.CustomerCreatedEvent;
 import py.com.yensei.mcs.customers.mappers.CustomerMapper;
 import py.com.yensei.mcs.customers.models.CustomerModel;
 import py.com.yensei.mcs.customers.repository.CustomerRepository;
@@ -14,12 +18,27 @@ import py.com.yensei.mcs.customers.repository.CustomerRepository;
 @RequiredArgsConstructor // genera constructor con parametros para los attr final, spring inyecta los beans automaticamente sin el autowired
 public class CustomerService {
 
+    private static final Logger log = LoggerFactory.getLogger(CustomerService.class);
+
     private final CustomerRepository repository;
     private final CustomerMapper mapper;
+
+    private final StreamBridge streamBridge;
     //aqui un comentario
     public CustomerModel createCustomer(CustomerModel customer) {
         var customerEntity = mapper.toEntity(customer);
         var savedEntity = repository.save(customerEntity);
+
+        CustomerCreatedEvent event = new CustomerCreatedEvent(
+            savedEntity.getId(),
+            savedEntity.getFirstname(),
+            savedEntity.getEmail()
+        );
+
+        streamBridge.send("sendCustomerCreatedEvent-out-0", event);
+        log.debug(">>> Evento CustomerCreatedEvent enviado para el cliente ID: {}", savedEntity.getId());
+
+
         return mapper.toModel(savedEntity); 
     }
 

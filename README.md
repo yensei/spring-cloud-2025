@@ -200,4 +200,78 @@ curl --location 'http://localhost:9990/realms/spring-cloud-realm/protocol/openid
 curl --location 'http://localhost:8090/api/customers' \
 --header 'Authorization: Bearer TU_TOKEN_AQUI'
 ```
-# Con esto ya tienes el flujo completo de autenticación y autorización funcionando. ¡Felicidades!
+Con esto ya tienes el flujo completo de autenticación y autorización funcionando. 
+
+## KAFKA
+### Validar si hay mensajes
+Par verificar que el productor está enviando los mensajes correctamente, incluso antes de tener un consumidor, es un paso fundamental para depurar y tener confianza en tu arquitectura.
+
+La forma más directa de "espiar" lo que está pasando dentro de Kafka es usar las herramientas de línea de comandos que vienen incluidas en la propia imagen de Docker de Kafka.
+
+#### Paso a paso:
+
+Verificación con la Herramienta de Consola de Kafka
+Vamos a abrir una terminal dentro de tu contenedor de Kafka y nos suscribiremos al topic customers.v1.events para ver los mensajes en tiempo real a medida que llegan.
+
+* Paso 1: Asegúrate de que todo esté en ejecución
+
+Primero, levanta toda tu infraestructura como de costumbre:
+
+```bash
+docker compose up -d --build
+```
+* Paso 2: Abre una terminal dentro del contenedor de Kafka
+
+Abre una nueva terminal en tu máquina y ejecuta el siguiente comando. Esto te dará acceso a una sesión de bash dentro del contenedor kafka:
+
+```bash
+docker exec -it kafka bash
+```
+Verás que tu prompt cambia, indicando que ahora estás dentro del contenedor.
+
+* Paso 3: Inicia el consumidor de consola
+
+Una vez dentro del contenedor, ejecuta este comando. Este programa se conectará al broker de Kafka y escuchará los mensajes del topic que le indiques:
+
+```bash
+kafka-console-consumer --bootstrap-server localhost:9092 --topic customers.v1.events --from-beginning
+```
+
+Desglosemos el comando:
+
+kafka-console-consumer: Es el nombre de la herramienta.
+--bootstrap-server localhost:9092: Le dice dónde está el broker de Kafka. Como estamos dentro del contenedor kafka, podemos usar localhost.
+--topic customers.v1.events: Este es el punto clave. Es el nombre exacto del topic que definiste en el application.yml de mcs-customers.
+--from-beginning: Es muy útil. Le dice al consumidor que lea todos los mensajes que ya existan en el topic desde el principio, no solo los nuevos.
+Después de ejecutar el comando, la terminal se quedará "esperando", con un cursor parpadeando. ¡Eso es bueno! Significa que está escuchando activamente.
+
+* Paso 4: Envía un evento creando un nuevo cliente
+
+Ahora, con la terminal del consumidor de Kafka abierta y esperando, usa Postman o curl para crear un nuevo cliente a través de tu API Gateway, como lo harías normalmente.
+
+Ejemplo con curl (necesitarás un token de acceso válido):
+
+```bash
+# Show full code block 
+# Reemplaza TU_TOKEN_AQUI con un token válido de Keycloak
+curl --location 'http://localhost:8090/api/customers' \
+--header 'Authorization: Bearer TU_TOKEN_AQUI' \
+--header 'Content-Type: application/json' \
+--data '{
+    "firstname": "John",
+    "lastname": "Doe",
+    "email": "john.doe@example.com"
+}'
+```
+* Paso 5: ¡Observa la Magia!
+
+En el instante en que mcs-customers procese la petición, verás aparecer el evento en la terminal donde tienes el consumidor de consola. El resultado será algo así:
+
+```json
+{"customerId":1,"firstName":"John","email":"john.doe@example.com"}
+```
+¡Listo! Esto es la prueba irrefutable de que:
+
+Tu mcs-customers se conectó correctamente a Kafka.
+StreamBridge funcionó y serializó tu objeto CustomerCreatedEvent a JSON.
+El mensaje fue publicado exitosamente en el topic customers.v1.events.

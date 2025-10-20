@@ -9,7 +9,7 @@
 # IDE files
 /.idea/
 /*.iml
-/.vscode/
+**/.vscode/
 *.swp
 
 # OS files

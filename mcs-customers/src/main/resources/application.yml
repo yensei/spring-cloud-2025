@@ -12,6 +12,15 @@ spring:
         max-attempts: 20
         max-interval: 5000
         initial-interval: 1000
+    stream:
+      kafka:
+        binder:
+          brokers: kafka:9092 # Apunta al servicio de Kafka en Docker
+      bindings:
+        # Nombre de la función que produce el mensaje (usada en StreamBridge)
+        # -out-0 es la convención para la salida 0
+        sendCustomerCreatedEvent-out-0:
+          destination: customers.v1.events # Nombre del topic en Kafka
 
 server:
   port: 8080 # Le dice a Spring Boot que use un puerto dinámico (ideal para Kubernetes/Docker)

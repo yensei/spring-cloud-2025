@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    # --- Configuración de Spring Cloud Stream (Consumidor) ---
+    stream:
+      kafka:
+        binder:
+          brokers: kafka:9092
+      bindings:
+        # El nombre se forma con: <nombreDelMetodoDelBean>-in-0
+        processCustomerCreatedEvent-in-0:
+          # Destino: El MISMO topic donde el productor publica
+          destination: customers.v1.events
+          # Grupo: Identificador del grupo de consumidores.
+          # Si levantas varias instancias de mcs-notifications, Kafka balanceará
+          # los mensajes entre ellas gracias a este group.id.
+          group: notifications-group
+
+# --- Configuración de Eureka ---
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+  instance:
+    # Es una buena práctica darle un ID único a cada instancia
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+server:
+  port: 8082 # Un puerto nuevo que no esté en uso
