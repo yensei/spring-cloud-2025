@@ -15,8 +15,7 @@ spring:
 
 server:
   port: 8080 # Le dice a Spring Boot que use un puerto dinámico (ideal para Kubernetes/Docker)
-  servlet:
-    context-path: /mcs-customers # 💥 Agrega el contexto esperado
+  # El context-path será manejado por el API Gateway
 
 springdoc:
   swagger-ui:

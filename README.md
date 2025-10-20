@@ -81,3 +81,123 @@ La verdadera potencia de Grafana está en los dashboards. Vamos a importar uno m
 * Configura el Dashboard:
 * En la parte inferior, te pedirá seleccionar la fuente de datos de Prometheus. Elige Prometheus en el desplegable.
 * Haz clic en Import.
+
+## Autenticacion
+### Keykloack
+Paso 0: Crear el Realm
+Al iniciar Keycloak por primera vez, solo existe el realm `master`. Debemos crear uno específico para nuestra aplicación.
+
+1.  **Accede a la Consola de Administración:** Ve a `http://localhost:9990` (user: `admin`, pass: `admin`).
+2.  **Crea el Realm:**
+    *   En la esquina superior izquierda, haz clic sobre el nombre del realm actual (`master`).
+    *   Haz clic en el botón **Create Realm**.
+    *   En **Realm name**, escribe `spring-cloud-realm`.
+    *   Haz clic en **Create**.
+
+Keycloak te cambiará automáticamente al nuevo realm. Todos los pasos siguientes se realizan dentro de `spring-cloud-realm`.
+
+Paso 1: Configurar un Cliente y Usuario en Keycloak
+Primero, necesitamos decirle a Keycloak que existirá una "aplicación cliente" (en este caso, Postman) que solicitará tokens, y crear un usuario que pueda iniciar sesión.
+
+Accede a la Consola de Keycloak:
+
+Abre tu navegador y ve a http://localhost:9990.
+Inicia sesión en la consola de administración (usuario: admin, contraseña: admin).
+Selecciona tu Realm:
+
+En la esquina superior izquierda, asegúrate de que el realm seleccionado sea spring-cloud-realm.
+Crea un Cliente para Postman:
+
+En el menú de la izquierda, ve a Clients y haz clic en Create client.
+Client ID: postman-client (o el nombre que prefieras).
+Deja el resto como está y haz clic en Next.
+Activa la opción Client authentication y Direct access grants. Esto es crucial para permitir el flujo de grant_type=password que usaremos.
+Haz clic en Save.
+Crea un Usuario de Prueba:
+
+En el menú de la izquierda, ve a Users y haz clic en Add user.
+Username: testuser.
+Haz clic en Create.
+Ahora, ve a la pestaña Credentials del usuario que acabas de crear.
+Haz clic en Set password.
+Password: password (o la que quieras).
+**MUY IMPORTANTE:** Desactiva la opción **Temporary**. Si se queda activada, recibirás el error "Account is not fully set up".
+Haz clic en Save.
+¡Listo! Ya tienes un cliente (postman-client) y un usuario (testuser) listos para autenticarse.
+
+Paso 2: Obtener el Token JWT con Postman
+Ahora vamos a pedirle a Keycloak que nos dé un token para testuser.
+
+Crea una nueva petición en Postman:
+
+Método: POST
+URL: http://localhost:9990/realms/spring-cloud-realm/protocol/openid-connect/token
+Configura el Body:
+
+Selecciona la pestaña Body.
+Elige el tipo x-www-form-urlencoded.
+Añade las siguientes claves (keys) y valores (values).
+
+*   `grant_type`: `password`
+*   `client_id`: `postman-client` (o el nombre de tu cliente)
+*   `username`: `testuser`
+*   `password`: `password`
+*   `client_secret`: (Añade esto **solo si tu cliente es confidencial**). Para obtenerlo, ve a la pestaña `Credentials` de tu cliente en Keycloak.
+
+Tu configuración debería verse así:
+
+Envía la petición:
+
+Haz clic en Send.
+Si todo está correcto, Keycloak te devolverá una respuesta JSON con varios tokens. El que nos interesa es el access_token.
+json
+ Show full code block 
+{
+    "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIg... (un token muy largo) ...",
+    "expires_in": 300,
+    "refresh_expires_in": 1800,
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIg...",
+    "token_type": "Bearer",
+    "not-before-policy": 0,
+    "session_state": "...",
+    "scope": "email profile"
+}
+Paso 3: Usar el Token para Acceder a un Endpoint Protegido
+Ahora que tienes el access_token, puedes usarlo para autenticarte en tus microservicios a través del Gateway.
+
+Copia el access_token: Selecciona y copia el valor completo del access_token de la respuesta anterior.
+
+Crea una nueva petición para tu API:
+
+Método: GET (o el que quieras probar)
+URL: http://localhost:8090/api/customers (recuerda usar el puerto del Gateway y la ruta /api/...)
+Configura la Autorización:
+
+Ve a la pestaña Authorization.
+En el desplegable Type, selecciona Bearer Token.
+En el campo Token de la derecha, pega el access_token que copiaste.
+Envía la petición:
+
+Haz clic en Send.
+¡Y voilà! Esta vez, en lugar de un 401 Unauthorized, deberías recibir una respuesta 200 OK con los datos de tu microservicio. El Gateway ha validado el token, ha visto que es correcto y ha permitido que la petición continúe hasta mcs-customers.
+
+Alternativa con curl (para la terminal)
+Si prefieres la línea de comandos, estos son los comandos equivalentes:
+
+1. Obtener el Token:
+
+```bash
+ #Show full code block 
+curl --location 'http://localhost:9990/realms/spring-cloud-realm/protocol/openid-connect/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'client_id=postman-client' \
+--data-urlencode 'username=testuser' \
+--data-urlencode 'password=password' \
+--data-urlencode 'grant_type=password'
+```
+2. Usar el Token: (Reemplaza TU_TOKEN_AQUI con el access_token obtenido)
+```bash
+curl --location 'http://localhost:8090/api/customers' \
+--header 'Authorization: Bearer TU_TOKEN_AQUI'
+```
+# Con esto ya tienes el flujo completo de autenticación y autorización funcionando. ¡Felicidades!

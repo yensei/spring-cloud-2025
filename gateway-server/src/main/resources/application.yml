@@ -16,6 +16,9 @@ management:
     gateway:
       discovery:
         locator:
+          # ⬇️ NUEVO: Permite que los headers de autorización se pasen a los microservicios
+          allowed-headers:
+            - Authorization
           enabled: true # Habilita el enrutamiento automático basado en el serviceId de Eureka
           lower-case-service-id: true # Convierte los serviceId a minúsculas
       routes:
@@ -24,17 +27,21 @@ management:
           # para encontrar una instancia del servicio 'mcs-customers'.
           uri: lb://mcs-customers
           predicates:
-            # Esta ruta se activa si la petición empieza con /api/customers/
-            - Path=/api/customers/**
+            # Esta ruta se activa si la petición empieza con /api/customers
+            - Path=/api/customers, /api/customers/**
           filters:
-             # Reescribe la ruta: /api/customers/1 -> /mcs-customers/customers/1
-            - RewritePath=/api/(?<segment>.*), /mcs-customers/${segment}
+             # Reescribe la ruta: /api/customers/1 -> /customers/1
+            - RewritePath=/api/(?<segment>.*), /${segment}
 
         - id: mcs-orders-route
           uri: lb://mcs-orders
           predicates:
-            # Esta ruta se activa si la petición empieza con /api/orders/**
-            - Path=/api/orders/**
+            # Esta ruta se activa si la petición empieza con /api/orders
+            - Path=/api/orders, /api/orders/**
           filters:
-            # Reescribe la ruta: /api/orders/1 -> /mcs-orders/orders/1
-            - RewritePath=/api/(?<segment>.*), /mcs-orders/${segment}
+            # Reescribe la ruta: /api/orders/1 -> /orders/1
+            - RewritePath=/api/(?<segment>.*), /${segment}
+      default-filters:
+        # Elimina el prefijo del serviceId (ej: /mcs-customers) de la ruta.
+        # Esto es necesario cuando se usa discovery.locator y rutas manuales.
+        - StripPrefix=1

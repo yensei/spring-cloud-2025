@@ -39,11 +39,11 @@ services:
     networks:
       - spring-cloud-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d customerdb"]
+      test: ["CMD-SHELL", "pg_isready -U user -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-
+# 3. DESCUBRIR NUEVOS COMPONENTES (Eureka Server)
   eureka-server:
     #image: eureka-server:latest # Crea la imagen de tu proyecto Eureka Server
     build: 
@@ -67,7 +67,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # 3. MICROSERVICIO DE CLIENTES (Config Client)
+  # 4. MICROSERVICIOs 
   mcs-customers:
     build: 
       context: ./mcs-customers # Asume que el Microservicio está en una subcarpeta
@@ -91,13 +91,18 @@ services:
       # Configuración de debug remoto para Java
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       
-    depends_on:
+    depends_on:      
       config-server:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
       db-postgres:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
       eureka-server:
         condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
+      keycloak:
+        condition: service_healthy
+    # Permite que el contenedor resuelva 'keycloak.local' a la IP del host de Docker
+    extra_hosts:
+      - "keycloak.local:host-gateway"
     networks:
       - spring-cloud-network
     logging:
@@ -125,13 +130,18 @@ services:
       SPRING_DEVTOOLS_RESTART_ENABLED: true 
       # Spring Cloud URI ya definido en bootstrap.yml, pero es bueno como fallback
       WAIT_HOSTS: db-postgres:5432,spring-config-server:8888 # Espera a que la BD y el CS estén listos (necesitarás una utilidad 'wait-for-it' o similar, o simplemente confiar en Docker Compose)                  
-    depends_on:
+    depends_on:      
       config-server:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
       db-postgres:
         condition: service_healthy # Asegúrate que el CS esté HEALTHY antes de iniciar
       eureka-server:
         condition: service_started # Espera a que Eureka haya iniciado para poder registrarse
+      keycloak:
+        condition: service_healthy
+    # Permite que el contenedor resuelva 'keycloak.local' a la IP del host de Docker
+    extra_hosts:
+      - "keycloak.local:host-gateway"
     networks:
       - spring-cloud-network
     logging:
@@ -140,7 +150,7 @@ services:
         max-size: "10m"
         max-file: "3"
   
-  # 4. API GATEWAY
+  # 5. API GATEWAY
   gateway-server:
     build:
       context: ./gateway-server
@@ -155,6 +165,11 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_started
+      keycloak:
+        condition: service_healthy
+    # Permite que el contenedor resuelva 'keycloak.local' a la IP del host de Docker
+    extra_hosts:
+      - "keycloak.local:host-gateway"
     networks:
       - spring-cloud-network
     logging:
@@ -163,7 +178,35 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # 5. STACK DE MONITOREO
+  # 6. SERVIDOR DE AUTORIZACIÓN KEYCLOAK
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.4
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: db-postgres
+      KC_DB_URL_DATABASE: keycloakdb
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      # Define la URL pública de Keycloak usando el nuevo hostname
+      KC_HOSTNAME_URL: http://keycloak.local:9990
+    ports:
+      - "9990:8080" # Mapeamos el puerto 8080 de Keycloak al 9990 de nuestro host
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+    networks:
+      - spring-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # 6. STACK DE MONITOREO
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

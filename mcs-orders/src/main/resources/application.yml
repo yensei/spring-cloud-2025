@@ -14,8 +14,7 @@ spring:
         initial-interval: 1000
 server:
   port: 8081 # Corregido para coincidir con docker-compose.yml
-  servlet:
-    context-path: /mcs-orders # 💥 Agrega el contexto esperado
+  # El context-path será manejado por el API Gateway
 
 springdoc:
   swagger-ui:

@@ -1,5 +1,7 @@
 package py.com.yensei.mcs.orders.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import py.com.yensei.mcs.orders.repository.OrderRepository;
 @RequiredArgsConstructor // genera constructor con parametros para los attr final, spring inyecta los beans automaticamente sin el autowired
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+    
     private final OrderRepository repository;
     private final OrderMapper mapper;
     private final CustomerClient customerClient;
@@ -43,8 +47,16 @@ public class OrderService {
         
         // Convertimos la entidad a modelo
         OrderModel orderModel = mapper.toModel(orderEntity);
-        // Usamos el Feign Client para obtener los datos del cliente
-        CustomerModel customerModel = customerClient.getCustomerById(orderEntity.getCustomerId());
+        CustomerModel customerModel = null;
+        try {
+            log.debug("Buscando datos del cliente con ID: {}", orderModel.getCustomerId());
+            // Usamos el Feign Client para obtener los datos del cliente            
+            customerModel = customerClient.getCustomerById(orderEntity.getCustomerId());
+            log.debug("Cliente encontrado: {}",customerModel);
+        } catch (Exception e) {
+            log.error("No se pudo obtener la información del cliente con ID: {}. Causa: {}",
+                    orderEntity.getCustomerId(), e.getMessage());
+        }
         orderModel.setCustomerData(customerModel);
         return orderModel;
     }
