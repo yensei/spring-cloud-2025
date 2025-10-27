@@ -1,0 +1,594 @@
+type: collection.insomnia.rest/5.0
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1760063386077
+  modified: 1760063386077
+  description: ""
+collection:
+  - name: Customer Management
+    meta:
+      id: fld_f179e6879ddc40cba2717cd98beec42d
+      created: 1760063517583
+      modified: 1760063517583
+      sortKey: -1760063517583
+      description: API for creating, retrieving, and managing customers.
+    children:
+      - url: "{{ _.base_path_customer }}/customers/:id"
+        name: Get a customer by ID
+        meta:
+          id: req_b6a121ebb81645ceb7ffa9135b7810c2
+          created: 1760063517584
+          modified: 1760920526655
+          isPrivate: false
+          description: Retrieves a single customer record by its unique ID.
+          sortKey: -1760063517585
+        method: GET
+        parameters:
+          - id: pair_0fcd989814f6431d837245f5ffb6fd42
+            name: ""
+            value: ""
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{% response 'body', 'req_bf1d257cf0f24d32a05fd3a8d42c1755',
+            'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "1"
+      - url: "{{ _.base_url }}/customers/:id"
+        name: Update an existing customer
+        meta:
+          id: req_3e7d161c848a46bfb10ce6ee08b3f63a
+          created: 1760063517586
+          modified: 1760063916203
+          isPrivate: false
+          description: Updates a customer's details by their ID.
+          sortKey: -1760063517586
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "id": 1,
+              "firstname": "Nombre nuevo",
+              "lastname": "Apellido nuevo",
+              "email": "otro@email.com",
+              "phone": "59597354258",
+              "address": "direccion falta",
+              "birthdate": "2000-05-05"
+            }
+        headers:
+          - name: Content-Type
+            disabled: false
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "1"
+      - url: "{{ _.base_path_customer }}/customers/:id"
+        name: Delete a customer
+        meta:
+          id: req_42ffc7b5a79341c0940380662f8be8d5
+          created: 1760063517588
+          modified: 1760820730192
+          isPrivate: false
+          description: Deletes a customer record by their ID.
+          sortKey: -1760063517588
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "2"
+      - url: "{{ _.base_path_customer }}/customers"
+        name: Get a paginated list of customers
+        meta:
+          id: req_6c584e255e4541feb527644f3973cb19
+          created: 1760063517589
+          modified: 1760832877160
+          isPrivate: false
+          description: Retrieves customers with optional filtering by first name or last
+            name. Pagination is supported via `page`, `size`, and `sort`
+            parameters. The `sort` parameter format is `property,direction`
+            (e.g., `lastname,asc`). Multiple sort criteria can be provided.
+          sortKey: -1760063517589
+        method: GET
+        parameters:
+          - name: firstname
+            disabled: true
+            value: string
+            id: pair_7e6e0dab9377411e8234085327efd56d
+          - name: lastname
+            disabled: true
+            value: string
+            id: pair_0066e2956b434697b49c9a07a0e37341
+          - name: pageable
+            disabled: false
+            value: |-
+              {
+                "page": 0,
+                "size": 1,
+                "sort": [
+                  "lastname,asc"
+                ]
+              }
+            id: pair_794a0184fa50436bb3786c6708f7d723
+            type: text
+            multiline: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_path_customer }}/customers"
+        name: Create a new customer
+        meta:
+          id: req_484ad59a63184192bc42b0165af89b4e
+          created: 1760063517591
+          modified: 1760935140175
+          isPrivate: false
+          description: Creates a new customer record in the database.
+          sortKey: -1760063517591
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {  
+              "firstname": "Luciana",
+              "lastname": "Gonzalvez",
+              "email": "luciana@gmail.com",
+              "phone": "+595022587587",
+              "address": "Otra Calle falsa",
+              "birthdate": "1995-11-20"
+            }
+        headers:
+          - name: Content-Type
+            disabled: false
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_bf1d257cf0f24d32a05fd3a8d42c1755',
+            'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Order Management
+    meta:
+      id: fld_ca4efef6807341bdb73f020a6e0c6f0e
+      created: 1760814535214
+      modified: 1760814535214
+      sortKey: -1760814535214
+      description: API for creating, retrieving, and managing mcs-orders.
+    children:
+      - url: "{{ _.base_path_order }}/orders/:id"
+        name: Get a order by ID
+        meta:
+          id: req_6599a2c393da4db882a2baa735359a48
+          created: 1760814535215
+          modified: 1760923606302
+          isPrivate: false
+          description: Retrieves a single order record by its unique ID.
+          sortKey: -1760814535215
+        method: GET
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_bf1d257cf0f24d32a05fd3a8d42c1755',
+            'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "1"
+      - url: "{{ _.base_url }}/mcs-orders/{{ _.id }}"
+        name: Update an existing order
+        meta:
+          id: req_fa37aee536de45959540c28d371a4947
+          created: 1760814535216
+          modified: 1760814535216
+          isPrivate: false
+          description: Updates a order's details by their ID.
+          sortKey: -1760814535216
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "id": 0,
+              "customerId": 0,
+              "status": "string",
+              "totalAmount": 0,
+              "order_date": "string"
+            }
+        headers:
+          - name: Content-Type
+            disabled: false
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_path_order }}/orders/:id"
+        name: Delete a order
+        meta:
+          id: req_6a2f69292d67418581279f94c84ff744
+          created: 1760814535217
+          modified: 1760820786365
+          isPrivate: false
+          description: Deletes a order record by their ID.
+          sortKey: -1760814535217
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "1"
+      - url: "{{ _.base_path_order }}/orders"
+        name: Get a paginated list of mcs-orders
+        meta:
+          id: req_0159705f3875484cba9acdddf81fba17
+          created: 1760814535219
+          modified: 1760832737017
+          isPrivate: false
+          description: Retrieves mcs-orders with optional filtering by first name or last
+            name. Pagination is supported via `page`, `size`, and `sort`
+            parameters. The `sort` parameter format is `property,direction`
+            (e.g., `lastname,asc`). Multiple sort criteria can be provided.
+          sortKey: -1760814535219
+        method: GET
+        parameters:
+          - name: customerId
+            disabled: true
+            value: "0"
+          - name: pageable
+            disabled: false
+            value: "[object Object]"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_path_order }}/orders"
+        name: Create a new order
+        meta:
+          id: req_0945856e6786446f9c9fcca795e59584
+          created: 1760814535220
+          modified: 1760923581987
+          isPrivate: false
+          description: Creates a new order record in the database.
+          sortKey: -1760814535220
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {  "id": 0,
+              "customer_id": 1,
+              "status": "PEN",
+              "total_amount": 20000,
+              "order_date": "2025-10-18"
+            }
+        headers:
+          - name: Content-Type
+            disabled: false
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_bf1d257cf0f24d32a05fd3a8d42c1755',
+            'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Config-Server
+    meta:
+      id: fld_d43a8109740b46f8bf1fce1ccd75a2ea
+      created: 1760836018251
+      modified: 1760836018251
+      sortKey: -1760836018251
+      description: ""
+    children:
+      - url: http://localhost:8888/actuator/health
+        name: GET Health
+        meta:
+          id: req_88daeaa822904ddd80f41c65c78aaad5
+          created: 1760836023659
+          modified: 1760836073228
+          isPrivate: false
+          description: ""
+          sortKey: -1760836060051
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/actuator/refresh
+        name: GET Refresh actualizar datos de cache
+        meta:
+          id: req_cbe7267d39c8414ab4797c0661a9775e
+          created: 1760836099288
+          modified: 1760836114841
+          isPrivate: false
+          description: ""
+          sortKey: -1760825297635.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/mcs-orders/dev
+        name: GET Orders config data
+        meta:
+          id: req_6aaf15e3350b4635a9a96681f2d1d0a6
+          created: 1760836143269
+          modified: 1760836152812
+          isPrivate: false
+          description: ""
+          sortKey: -1760819916427.75
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/gateway-server/default
+        name: GET gateway config data
+        meta:
+          id: req_f6775a47409c4990bbaed3c23de334bb
+          created: 1760839392959
+          modified: 1760839559921
+          isPrivate: false
+          description: ""
+          sortKey: -1760817225823.875
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/eureka-server/default
+        name: GET eureka-server config data
+        meta:
+          id: req_ca45061d6243438ab621307f502b7944
+          created: 1760850388422
+          modified: 1760850391769
+          isPrivate: false
+          description: ""
+          sortKey: -1760815880521.9375
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/mcs-customers/dev
+        name: GET Customers config data
+        meta:
+          id: req_28e455b4991549edb921838faf14fbeb
+          created: 1760851960925
+          modified: 1760851997668
+          isPrivate: false
+          description: ""
+          sortKey: -1760818571125.8125
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/mcs-customers/actuator/prometheus
+        name: GET CUSTOMER Prometheus
+        meta:
+          id: req_65121fc63b284d2ead1fdb22e1f5dc3c
+          created: 1760902506773
+          modified: 1760902976114
+          isPrivate: false
+          description: ""
+          sortKey: -1760830678843.25
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8090/actuator/prometheus
+        name: GET GATEWAY Prometheus
+        meta:
+          id: req_b13671d7cf44403682cc2391c8180ba5
+          created: 1760902990239
+          modified: 1760903566082
+          isPrivate: false
+          description: ""
+          sortKey: -1760827988239.375
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8888/mcs-notifications/default
+        name: GET Notifications config data
+        meta:
+          id: req_2e54ceef6122465881da68defa33fcb9
+          created: 1760932494596
+          modified: 1760932504634
+          isPrivate: false
+          description: ""
+          sortKey: -1760817898474.8438
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: KeyCloak
+    meta:
+      id: fld_6101bf9f3dc54fd3ba6256e25294364e
+      created: 1760914809645
+      modified: 1760914809645
+      sortKey: -1760914809645
+      description: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1760063414041
+    modified: 1760921750115
+  cookies:
+    - key: JSESSIONID
+      value: BE74444234E80131FF94268EC2561AE1
+      domain: localhost
+      path: /
+      httpOnly: true
+      hostOnly: true
+      creation: 2025-10-20T00:34:06.652Z
+      lastAccessed: 2025-10-20T00:55:50.115Z
+      id: 70cc79de-91ea-4d41-a171-dd79b686f10c
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1760063414037
+    modified: 1760832708412
+    isPrivate: false
+  data:
+    base_path_customer: "{{scheme}}://{{ _.host_customer }}/{{context_customer}}"
+    base_path_order: "{{scheme}}://{{ _.host_order }}/{{ _.context_order }}"
+  subEnvironments:
+    - name: localhost
+      meta:
+        id: env_4239f800ecaa44149c68e37de6693525
+        created: 1760063517582
+        modified: 1760832556384
+        isPrivate: false
+        sortKey: 1760063517582
+      data:
+        scheme: http
+        context_customer: mcs-customers
+        context_order: mcs-orders
+        host_customer: localhost:8080
+        host_order: localhost:8081
+      color: "#03fc07"
+    - name: localhost-gateway
+      meta:
+        id: env_45a20251a3864bff932ae9be5c5307cf
+        created: 1760832396742
+        modified: 1760836310727
+        isPrivate: true
+        sortKey: 1760832396742
+      data:
+        scheme: http
+        context_customer: api
+        context_order: api
+        host_customer: localhost:8090
+        host_order: localhost:8090
+      color: "#62f202"
